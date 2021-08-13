@@ -1,5 +1,5 @@
 # ARES Science Team Repository
 
-Let's roll!
+Class:
 
-irfbngisrbgirs
+distanceSensor: - Initialize and get distance measurement
