@@ -6,4 +6,4 @@
 
 ### Class:
 
-distanceSensor: - Initialize and get distance measurement
+- distanceSensor:    Initialize and get distance measurement
