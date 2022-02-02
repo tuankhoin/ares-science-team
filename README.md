@@ -1,4 +1,4 @@
-# ARES Science Team Repository
+# URT Science Team Repository
 
 Let's roll!
 
