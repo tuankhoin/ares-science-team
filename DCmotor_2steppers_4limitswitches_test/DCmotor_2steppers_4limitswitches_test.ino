@@ -25,6 +25,9 @@ char rx_byte;
 // Change command flag
 boolean change_command;
 
+// Toggle drill command flag
+boolean drilling = true;
+
 
 void setup() {
   // For command inputs
@@ -56,7 +59,7 @@ void loop() {
   }
 
   
-  // This can't be run every loop otherwise stepper makes a terrible noise
+  // Set the direction of movement for the steppers. This can't be run every loop otherwise stepper makes a terrible noise
   // S1
   if (change_command && rx_byte == 'w') {
     Serial.println("S1 going up");
@@ -86,6 +89,16 @@ void loop() {
     change_command = false;
   }
 
+  // Set drill command
+  if (rx_byte == 'd') {
+    if (drilling) {
+      drilling = false;
+    } else {
+      drilling = true;
+    }
+  }
+  
+
 
   // Stop everything if 'q' is pressed
   if (rx_byte == 'q') {
@@ -94,21 +107,27 @@ void loop() {
     digitalWrite(S2_EN_PIN, HIGH);  // Disable stepper driver #2
   }
     
-  // Turn on drill if 'd' is pressed
-  else if (rx_byte == 'd') {
-    Serial.println("Drilling");
+  // Toggle drill if 'd' is pressed
+  if (drilling) {
+    Serial.println("Drill ON");
 
     // Spin at full speed
     analogWrite(E1, 255);
     delay(30);  // So it can have time to get up-to-speed
-
+  } else {
+    Serial.println("Drill OFF");
+    
     // Turn it off
     analogWrite(E1, LOW); // No DC motor voltage
-  } 
+  }
 
-  
-  // Stepper #1: Move up or down if 'w' or 's' is pressed respectively unless upper or lower limit is hit respectively
-  if ((digitalRead(S1_LOWER_LIMIT_SWITCH_PIN) == HIGH && digitalRead(S1_UPPER_LIMIT_SWITCH_PIN) == HIGH && (rx_byte == 'w' || rx_byte == 's')) ||
+  // Stepper #1:
+  if (rx_byte == 'e') {
+    // Turn it off
+    digitalWrite(S1_EN_PIN, HIGH);  // Disable stepper driver
+  }
+  // Move up or down if 'w' or 's' is pressed respectively unless upper or lower limit is hit respectively
+  else if ((digitalRead(S1_LOWER_LIMIT_SWITCH_PIN) == HIGH && digitalRead(S1_UPPER_LIMIT_SWITCH_PIN) == HIGH && (rx_byte == 'w' || rx_byte == 's')) ||
             digitalRead(S1_LOWER_LIMIT_SWITCH_PIN) == LOW && rx_byte == 'w' ||
             digitalRead(S1_UPPER_LIMIT_SWITCH_PIN) == LOW && rx_byte == 's') {
     // Turn it on
@@ -119,14 +138,15 @@ void loop() {
     delayMicroseconds(400);
     digitalWrite(S1_STEP_PIN, LOW);
     delayMicroseconds(400);
-
-    // Turn it off
-    digitalWrite(S1_EN_PIN, HIGH);  // Disable stepper driver
   }
-  
-  
-  // Stepper #2: Move up or down if 'r' or 'f' is pressed respectively unless upper or lower limit is hit respectively
-  if ((digitalRead(S2_LOWER_LIMIT_SWITCH_PIN) == HIGH && digitalRead(S2_UPPER_LIMIT_SWITCH_PIN) == HIGH && (rx_byte == 'r' || rx_byte == 'f')) ||
+   
+  // Stepper #2: 
+  if (rx_byte == 't') {
+    // Turn it off
+    digitalWrite(S2_EN_PIN, HIGH);  // Disable stepper driver
+  }
+  // Move up or down if 'r' or 'f' is pressed respectively unless upper or lower limit is hit respectively
+  else if ((digitalRead(S2_LOWER_LIMIT_SWITCH_PIN) == HIGH && digitalRead(S2_UPPER_LIMIT_SWITCH_PIN) == HIGH && (rx_byte == 'r' || rx_byte == 'f')) ||
             digitalRead(S2_LOWER_LIMIT_SWITCH_PIN) == LOW && rx_byte == 'r' ||
             digitalRead(S2_UPPER_LIMIT_SWITCH_PIN) == LOW && rx_byte == 'f') {
     // Turn it on
@@ -137,12 +157,7 @@ void loop() {
     delayMicroseconds(400);
     digitalWrite(S2_STEP_PIN, LOW);
     delayMicroseconds(400);
-
-    // Turn it off
-    digitalWrite(S2_EN_PIN, HIGH);  // Disable stepper driver
   }
   
-
-
 
 }
