@@ -57,17 +57,30 @@ void loop() {
 
   
   // This can't be run every loop otherwise stepper makes a terrible noise
+  // S1
   if (change_command && rx_byte == 'w') {
-    Serial.println("Going up");
+    Serial.println("S1 going up");
     // Set the spinning direction clockwise (move up):
     digitalWrite(S1_DIR_PIN, LOW);  // stepper driver #1
-    digitalWrite(S2_DIR_PIN, LOW);  // stepper driver #2
     
     change_command = false;
   } else if (change_command && rx_byte == 's') {
+    Serial.println("S1 going down");
     // Set the spinning direction counterclockwise (move down):
-    Serial.println("Going down");
     digitalWrite(S1_DIR_PIN, HIGH);   // stepper driver #1
+
+    change_command = false;
+  }
+  // S2
+  else if (change_command && rx_byte == 'r') {
+    Serial.println("S2 going up");
+    // Set the spinning direction clockwise (move up):
+    digitalWrite(S2_DIR_PIN, LOW);  // stepper driver #2
+
+    change_command = false;
+  } else if (change_command && rx_byte == 'f') {
+    Serial.println("S2 going down");
+    // Set the spinning direction counterclockwise (move down):
     digitalWrite(S2_DIR_PIN, HIGH);   // stepper driver #2
 
     change_command = false;
@@ -94,7 +107,7 @@ void loop() {
   } 
 
   
-  // Stepper #1: Move up or down if 'w' or s' is pressed respectively unless upper or lower limit is hit respectively
+  // Stepper #1: Move up or down if 'w' or 's' is pressed respectively unless upper or lower limit is hit respectively
   if ((digitalRead(S1_LOWER_LIMIT_SWITCH_PIN) == HIGH && digitalRead(S1_UPPER_LIMIT_SWITCH_PIN) == HIGH && (rx_byte == 'w' || rx_byte == 's')) ||
             digitalRead(S1_LOWER_LIMIT_SWITCH_PIN) == LOW && rx_byte == 'w' ||
             digitalRead(S1_UPPER_LIMIT_SWITCH_PIN) == LOW && rx_byte == 's') {
@@ -112,10 +125,10 @@ void loop() {
   }
   
   
-  // Stepper #2: Move up or down if 'w' or s' is pressed respectively unless upper or lower limit is hit respectively
-  if ((digitalRead(S2_LOWER_LIMIT_SWITCH_PIN) == HIGH && digitalRead(S2_UPPER_LIMIT_SWITCH_PIN) == HIGH && (rx_byte == 'w' || rx_byte == 's')) ||
-            digitalRead(S2_LOWER_LIMIT_SWITCH_PIN) == LOW && rx_byte == 'w' ||
-            digitalRead(S2_UPPER_LIMIT_SWITCH_PIN) == LOW && rx_byte == 's') {
+  // Stepper #2: Move up or down if 'r' or 'f' is pressed respectively unless upper or lower limit is hit respectively
+  if ((digitalRead(S2_LOWER_LIMIT_SWITCH_PIN) == HIGH && digitalRead(S2_UPPER_LIMIT_SWITCH_PIN) == HIGH && (rx_byte == 'r' || rx_byte == 'f')) ||
+            digitalRead(S2_LOWER_LIMIT_SWITCH_PIN) == LOW && rx_byte == 'r' ||
+            digitalRead(S2_UPPER_LIMIT_SWITCH_PIN) == LOW && rx_byte == 'f') {
     // Turn it on
     digitalWrite(S2_EN_PIN, LOW);  // Enable stepper driver
     
