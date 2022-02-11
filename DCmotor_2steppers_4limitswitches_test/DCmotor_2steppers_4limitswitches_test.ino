@@ -1,8 +1,10 @@
 #include <Servo.h>
-Servo myservo;
+Servo container_servo;
+Servo probe_servo;
 
 // Servo
-#define SERVO_PIN 9
+#define CONTAINER_SERVO_PIN 9
+#define PROBE_SERVO_PIN 10
 
 // Stepper motor
 // S1 = Stepper for container 
@@ -40,7 +42,10 @@ void setup() {
   Serial.begin(9600); 
 
   // Servo
-  myservo.attach(SERVO_PIN); 
+  container_servo.attach(CONTAINER_SERVO_PIN);
+  container_servo.write(0);   // Rotate to 0° otherwise it will open automatically
+  probe_servo.attach(PROBE_SERVO_PIN);
+  probe_servo.write(0);   // Rotate to 0° otherwise it will open automatically
 
   // Stepper
   digitalWrite(S1_EN_PIN, HIGH);  // Disable stepper driver so it doesn't turn motor
@@ -131,16 +136,18 @@ void loop() {
     analogWrite(E1, LOW); // No DC motor voltage
   }
 
-  // Servo open
-  if (rx_byte == 'o') {
-    myservo.write(120);   // Rotate to ~180°
-    Serial.println("Opening");
-  }
-  
   // Servo close
   if (rx_byte == 'c') {
-    myservo.write(0);   // Rotate to 0°
+    container_servo.write(0);   // Rotate to 0°
     Serial.println("Closing");
+    probe_servo.write(0);   // Rotate to 0°
+  }
+
+  // Servo open
+  if (rx_byte == 'o') {
+    container_servo.write(120);   // Rotate to ~180°
+    Serial.println("Opening");
+    probe_servo.write(120);   // Rotate to 0°
   }
 
   // Stepper #1:
