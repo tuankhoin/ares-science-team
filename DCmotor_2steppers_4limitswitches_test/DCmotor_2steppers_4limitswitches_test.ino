@@ -26,7 +26,7 @@ char rx_byte;
 boolean change_command;
 
 // Toggle drill command flag
-boolean drilling = true;
+boolean drilling = false;
 
 
 void setup() {
