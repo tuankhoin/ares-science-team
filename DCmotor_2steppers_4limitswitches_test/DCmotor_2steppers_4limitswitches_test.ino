@@ -1,3 +1,9 @@
+#include <Servo.h>
+Servo myservo;
+
+// Servo
+#define SERVO_PIN 9
+
 // Stepper motor
 // S1 = Stepper for container 
 // S2 = Stepper for drill
@@ -31,7 +37,10 @@ boolean drilling = false;
 
 void setup() {
   // For command inputs
-  Serial.begin(9600);  
+  Serial.begin(9600); 
+
+  // Servo
+  myservo.attach(SERVO_PIN); 
 
   // Stepper
   digitalWrite(S1_EN_PIN, HIGH);  // Disable stepper driver so it doesn't turn motor
@@ -120,6 +129,18 @@ void loop() {
   } else {  
     // Turn it off
     analogWrite(E1, LOW); // No DC motor voltage
+  }
+
+  // Servo open
+  if (rx_byte == 'o') {
+    myservo.write(120);   // Rotate to ~180°
+    Serial.println("Opening");
+  }
+  
+  // Servo close
+  if (rx_byte == 'c') {
+    myservo.write(0);   // Rotate to 0°
+    Serial.println("Closing");
   }
 
   // Stepper #1:
