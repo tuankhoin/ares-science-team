@@ -93,8 +93,10 @@ void loop() {
   if (rx_byte == 'd') {
     if (drilling) {
       drilling = false;
+      Serial.println("Drill OFF");
     } else {
       drilling = true;
+      Serial.println("Drill ON");
     }
   }
   
@@ -109,14 +111,10 @@ void loop() {
     
   // Toggle drill if 'd' is pressed
   if (drilling) {
-    Serial.println("Drill ON");
-
     // Spin at full speed
     analogWrite(E1, 255);
     delay(30);  // So it can have time to get up-to-speed
-  } else {
-    Serial.println("Drill OFF");
-    
+  } else {  
     // Turn it off
     analogWrite(E1, LOW); // No DC motor voltage
   }
