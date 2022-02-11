@@ -90,7 +90,7 @@ void loop() {
   }
 
   // Set drill command
-  if (rx_byte == 'd') {
+  if (change_command && rx_byte == 'd') {
     if (drilling) {
       drilling = false;
       Serial.println("Drill OFF");
@@ -98,6 +98,8 @@ void loop() {
       drilling = true;
       Serial.println("Drill ON");
     }
+
+    change_command = false;
   }
   
 
@@ -105,6 +107,7 @@ void loop() {
   // Stop everything if 'q' is pressed
   if (rx_byte == 'q') {
     analogWrite(E1, LOW); // No DC motor voltage
+    drilling = false;
     digitalWrite(S1_EN_PIN, HIGH);  // Disable stepper driver #1
     digitalWrite(S2_EN_PIN, HIGH);  // Disable stepper driver #2
   }
