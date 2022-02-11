@@ -116,7 +116,7 @@ void loop() {
   if (drilling) {
     // Spin at full speed
     analogWrite(E1, 255);
-    delay(30);  // So it can have time to get up-to-speed
+    //delay(30);  // So it can have time to get up-to-speed
   } else {  
     // Turn it off
     analogWrite(E1, LOW); // No DC motor voltage
