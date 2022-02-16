@@ -33,7 +33,7 @@ void loop()
   digitalWrite(RE, HIGH);
 
   //we write to the probe here
-  if (mod.write(temp, sizeof(temp)) == 5)
+  if (mod.write(temp, sizeof(temp)) == 8)
   {
     digitalWrite(DE, LOW);
     digitalWrite(RE, LOW);
@@ -47,7 +47,7 @@ void loop()
       Serial.println();
     }
   }
-  float mositure = float(values[6]) / 10;
+  float moisture = float(values[6]) / 10;
   Serial.print("moisture: ");
   Serial.println(moisture);
   
