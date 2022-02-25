@@ -1,2 +1,0 @@
-# URT Science Team Repository
-

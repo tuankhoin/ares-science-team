@@ -1,4 +1,17 @@
-
+// Distance sensor
+#include <ComponentObject.h>
+#include <RangeSensor.h>
+#include <SparkFun_VL53L1X.h>
+#include <vl53l1x_class.h>
+#include <vl53l1_error_codes.h>
+#include <Wire.h>
+#include "SparkFun_VL53L1X.h"
+//Optional interrupt and shutdown pins.
+#define SHUTDOWN_PIN 2
+#define INTERRUPT_PIN 3
+SFEVL53L1X distanceSensor;
+//Uncomment the following line to use the optional shutdown and interrupt pins.
+//SFEVL53L1X distanceSensor(Wire, SHUTDOWN_PIN, INTERRUPT_PIN);
 
 // Servo
 #include <Servo.h>
@@ -43,10 +56,19 @@ char S2_status;
 
 
 void setup() {
+  Wire.begin();
   
   // For command inputs
   Serial.begin(9600); 
 
+  // Distance sensor
+  if (distanceSensor.begin() != 0) //Begin returns 0 on a good init
+  {
+    Serial.println("Sensor failed to begin. Please check wiring. Freezing...");
+    while (1)
+      ;
+  }
+  Serial.println("Sensor online!");
 
   // Servo
   container_servo.attach(CONTAINER_SERVO_PIN);
@@ -167,7 +189,6 @@ void loop() {
             digitalRead(S1_UPPER_LIMIT_SWITCH_PIN) == LOW && S1_status == 's') {
     // Turn it on
     digitalWrite(S1_EN_PIN, LOW);  // Enable stepper driver
-    delayMicroseconds(400);
     
     // These four lines result in 1 step:
     digitalWrite(S1_STEP_PIN, HIGH);
@@ -190,7 +211,6 @@ void loop() {
             digitalRead(S2_UPPER_LIMIT_SWITCH_PIN) == LOW && S2_status == 'f') {
     // Turn it on
     digitalWrite(S2_EN_PIN, LOW);  // Enable stepper driver
-    delayMicroseconds(400);
     
     // These four lines result in 1 step:
     digitalWrite(S2_STEP_PIN, HIGH);
@@ -216,5 +236,22 @@ void loop() {
     probe_servo.write(120);   // Rotate to 0°
   }
 
+
+  // Print distance
+  Serial.println("Distance(mm): ");
+  Serial.print(findDistance());
   
+}
+
+int findDistance() {
+  distanceSensor.startRanging(); //Write configuration bytes to initiate measurement
+  while (!distanceSensor.checkForDataReady())
+  {
+    delay(1);
+  }
+  int distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
+  distanceSensor.clearInterrupt();
+  distanceSensor.stopRanging();
+
+  return distance;
 }
