@@ -1,12 +1,14 @@
+**Note: this is intended as a live document and may contain errors**
+
 # Introduction
-The files and directories within this package (teleop_science) are aimed towards testing and operation of the science payload for the Lunar Resources Task. The science payload is controlled by an Arduino which itself receives commands over ROS from a User Interface at the Control Station.
+26/02/22 - The files and directories within this package (teleop_science) are aimed towards testing and operation of the science payload for the Lunar Resources Task. The science payload is controlled by an Arduino which itself receives commands over ROS from a User Interface at the Control Station.
 
 # Terminology
 "Science payload" - all electrical and mechanical components directly aimed at collecting regolith for processing. Includes drill + arm that raises/lowers it, container + arm that raises/lowers it, Arduino controller, wiring, distance sensors, moisture probes, and supporting metal frame.
 
 "Regolith" - wet sand to be drilled, stored and processed to extract water.
 
-"I2C" - serial communication bus used for attaching lower speed peripheral integrated circuits to processors/microcontrollers in short-distance, intra-board communication
+"I2C" - serial communication bus used for attaching lower speed peripheral integrated circuits to processors/microcontrollers in short-distance, intra-board communication. In the case of this package, I2C is used to connect the distance sensor chips to the Arduino.
 
 # Arduino Files
 
@@ -104,7 +106,29 @@ src\teleop_science\scripts\teleop_science_pub_node.py
 
 # Setup
 
-TODO
+## Installation
+
+26/02/22 - Make sure you have:
+* [Oracle VM VirtualBox](https://www.virtualbox.org/wiki/Downloads)
+* [Ubuntu 18.04 (bionic) virtual machine](https://linuxhint.com/install_ubuntu_18-04_virtualbox/)
+* [ROS Melodic](http://wiki.ros.org/melodic/Installation/Ubuntu)
+* [Arduino IDE for Linux (in the VM)](https://docs.arduino.cc/software/ide-v1/tutorials/Linux)
+* The entire joystick-motor-control catkin workspace (folder which contains teleop_science package)
+
+## Running
+
+26/02/22 - Make sure to:
+1. <code> ls /dev </code> to see all the devices attached to the local system. The Arduino serial should look like <code> ttyACMx </code> where x = the rest of the serial's name
+2. <code> chmod 666 /dev/ttyACMx </code> to enable communication with the Arduino
+3. Upload the sketch via the Arduino IDE
+4. <code> roscore </code> to begin the ROS Master
+5. <code> catkin_make </code> to build the packagew
+6. <code> source devel/setup.sh </code> (in every terminal, from the root of the catkin workspace)
+7. <code> sudo chmod +x \<name of node> </code> for teleop_science_sub.py and teleop_science_pub.py
+8. <code> rosrun teleop_science \<name of node> </code> for teleop_science_sub.py and teleop_science_pub.py
+9. Follow the instructions in sci_payload.ino for setting up the distance sensors (requires sending a command acknowledgin when S2 has been reconnected).
+
+## 
 
 # To Do
 
