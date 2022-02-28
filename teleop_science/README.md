@@ -138,6 +138,7 @@ src\teleop_science\scripts\teleop_science_pub_node.py
 * *Finalise the ROS topics required for the UI*
 * *Ensure comms is working including the Jetson + Rocket M5 setup which allows operation of ROS nodes to send commands and receive sensor data*
 * *Incorporate the moisture probes into sci_payload.ino*
+* *launch file for ROS nodes?*
 
 
 # Contributors
