@@ -1,6 +1,10 @@
 #include <SoftwareSerial.h>
 #include <Wire.h>
 
+// WIRES
+// Orange - any analog pin
+// Red - 5V
+// Black x2 - ground
 
 //not sure what these pins
 #define RE 8
