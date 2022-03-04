@@ -51,6 +51,31 @@
 #define CONTAINER_SERVO_PIN 9
 #define PROBE_SERVO_PIN 10
 
+// Command mapping
+#define CONT_UP 'q'
+#define CONT_DOWN 'a'
+#define CONT_STOP 'w'
+
+#define DRILL_UP 'e'
+#define DRILL_DOWN 'd'
+#define DRILL_STOP 'r'
+
+#define DRILL_CW 't'
+#define DRILL_CCW 'g'
+#define DRILL_OFF 'y'
+
+#define CONT_CLOSE 'u'
+#define CONT_OPEN 'j'
+
+#define MOIST_UP 'i'
+#define MOIST_DOWN 'k'
+
+#define START 'z'
+#define STOP_MOTORS 'x'
+#define KILL_SWITCH 'c'
+
+
+
 // Rangefinder
 #define MAX_DIST_ATTEMPTS 100
 #define MIN_DIST 500
@@ -67,7 +92,7 @@ SFEVL53L1X S2_distance_sensor;
 int S1_distance = MIN_DIST + 1;
 int S2_distance = MIN_DIST + MIN_SEPARATION + 1;
 
-bool distance_sensors_available = true;
+bool distance_sensors_available = false;
 
 Servo container_servo;
 Servo probe_servo;
@@ -94,14 +119,14 @@ void log_info(String info) {
 
 
 bool stepper_runnable(int lower_limit_pin, int upper_limit_pin, int dir_pin, int distance){
-  // Return false if the lower limit switch has been hit and the arm/drill is going down or vice versa with the upper limit switch
+  // Return false if the lower limit switch has been hit and the container arm/drill is going down or vice versa with the upper limit switch
   if(digitalRead(lower_limit_pin) == LOW && digitalRead(dir_pin) == HIGH ||
      digitalRead(upper_limit_pin) == LOW && digitalRead(dir_pin) == LOW){
     log_info("Attempting to go past a limit switch!!\n\n");
     return false;
   }
 
-  // Return false if the the arm/drill is too close to the ground
+  // Return false if the the container arm/drill is too close to the ground
   if(distance_sensors_available){
     if(distance < MIN_DIST){
       log_info("Attempting to go too close to the ground!!\n\n");
@@ -115,9 +140,7 @@ bool stepper_runnable(int lower_limit_pin, int upper_limit_pin, int dir_pin, int
   return true;
 }
 
-void run_stepper(int en_pin, int step_pin){
-  digitalWrite(en_pin, LOW);  // Enable stepper driver
-
+void run_stepper(int step_pin){
   // Delay
   delayMicroseconds(400);
 
@@ -125,15 +148,10 @@ void run_stepper(int en_pin, int step_pin){
   digitalWrite(step_pin, HIGH); // Turn stepper(s) on
   delayMicroseconds(400);     // Delay
   digitalWrite(step_pin, LOW);// Turn stepper off
-  delayMicroseconds(400);     // Delay  
-  digitalWrite(en_pin, HIGH);  // Disable steppper driver
+  delayMicroseconds(400);     // Delay
 }
 
-void run_steppers(int en_pin_1, int step_pin_1, int en_pin_2, int step_pin_2){
-  // Enable stepper(s)
-  digitalWrite(en_pin_1, LOW);  // Enable stepper driver #1
-  digitalWrite(en_pin_2, LOW);  // Enable steppper driver #2
-
+void run_steppers(int step_pin_1, int step_pin_2){
   // Delay
   delayMicroseconds(400);
 
@@ -151,27 +169,25 @@ void run_steppers(int en_pin_1, int step_pin_1, int en_pin_2, int step_pin_2){
 
   // Delay
   delayMicroseconds(400);
-
-  // Disable stepper(s)
-  digitalWrite(en_pin_1, HIGH);  // Disable stepper driver #1
-  digitalWrite(en_pin_2, HIGH);  // Disable steppper driver #2
 }
 
-void arm_up() {
+void cont_up() {
   // Enable stepper 1
   stepper_1 = true;
   
   // This can't be run every loop otherwise stepper makes a terrible noise
   // Set the spinning direction clockwise (move up):
   digitalWrite(S1_DIR_PIN, LOW);  // stepper driver #1
+  digitalWrite(S1_EN_PIN, LOW);
 }
 
-void arm_down(){
+void cont_down(){
   // Enable stepper 1
   stepper_1 = true;
 
   // Set the spinning direction counterclockwise (move down):
   digitalWrite(S1_DIR_PIN, HIGH);   // stepper driver #1
+  digitalWrite(S1_EN_PIN, LOW);
 }
 
 void drill_up(){
@@ -180,6 +196,7 @@ void drill_up(){
 
   // Set the spinning direction clockwise (move up):
   digitalWrite(S2_DIR_PIN, LOW);   // stepper driver #2
+  digitalWrite(S2_EN_PIN, LOW);
 }
 
 
@@ -189,12 +206,20 @@ void drill_down(){
 
   // Set the spinning direction counterclockwise (move down):
   digitalWrite(S2_DIR_PIN, HIGH);   // stepper driver #2
+  digitalWrite(S2_EN_PIN, LOW);
 }
     
 
-void drill_spin() {
-  // Spin at full speed
+void drill_cw() {
+  // Spin clockwise at full speed
   analogWrite(E1, 255);
+  digitalWrite(M1, LOW);
+}
+
+void drill_ccw(){
+  // Spin clockwise at full speed
+  analogWrite(E1, 255);
+  digitalWrite(M1, HIGH);
 }
 
 void drill_off(){
@@ -213,17 +238,23 @@ void container_close(){
   probe_servo.write(0);   // Rotate to 0°
 }
 
-void stop() {
+void start() {
+  digitalWrite(S1_EN_PIN, LOW);  // Enable stepper driver #1
+  digitalWrite(S2_EN_PIN, LOW);  // Enable stepper driver #2
+  accept_input = true;  //Allow commands to be input
+}
+
+void stop_motors() {
   digitalWrite(S1_EN_PIN, HIGH);  // Disable stepper driver #1
   digitalWrite(S2_EN_PIN, HIGH);  // Disable stepper driver #2
 
   stepper_1 = false;  // Stop running stepper #1
   stepper_2 = false;  // Stop running stepper #1
   
-  drill_off();  // Turn drill off
-
-  accept_input = false;
+  drill_off();  // Turn drill off  
+  accept_input = false; //Allow commands to be input
 }
+
 
 void setup_distance_sensors(){
   
@@ -243,7 +274,7 @@ void setup_distance_sensors(){
   
   
   
-  log_info("Please insert S2's SDA & SCL pins. Press any key and hit enter to continue.\n");
+  log_info("Please insert S2's SDA & SCL pins. Press 'l' and hit enter to continue.\n");
 
   int attempts;
   for (attempts = 0; Serial.available() <= 0 && attempts < MAX_DIST_ATTEMPTS; attempts++)
@@ -251,13 +282,11 @@ void setup_distance_sensors(){
   
   if(attempts == MAX_DIST_ATTEMPTS){
     log_info("Distance sensor setup failed: no command received\n\n");
-    distance_sensors_available = false; 
     return;
   }
 
   if(Serial.read() != 'l'){
     log_info("Distance sensor setup failed: wrong command received\n\n");
-    distance_sensors_available = false; 
     return;
   }
 
@@ -270,7 +299,7 @@ void setup_distance_sensors(){
   
   log_info("S2's address: " + String(S2_distance_sensor.getI2CAddress()) + "\n");
 
-  
+  distance_sensors_available = true;
   
   log_info("Done\n\n");  
 }
@@ -322,6 +351,10 @@ void setup() {
   // For command inputs
   Serial.begin(9600);
 
+  while(Serial.available()>0){
+    char curr_char = Serial.read();
+  }
+
   // Stepper
   pinMode(S1_STEP_PIN, OUTPUT);
   pinMode(S1_DIR_PIN, OUTPUT);
@@ -345,14 +378,25 @@ void setup() {
   container_close();
 
   //  Turn everything off to begin with
-  stop();
+  stop_motors();
   
   // Do distance sensor calibration
   setup_distance_sensors();
 
-  log_info(String("Commands:\np - accept commands\nq - turn off rig and stop accepting commands\nw - arm up\ns - arm down\n")
-            + String("e - arm off\nd - toggle drill spinning\nr - drill up\nf - drill down\nt - drill stop translating\n")
-            + String("o - open container\nc - close container\n\n"));
+  log_info(String("Commands:\n")+START+String(" - accept commands\n")
+            + STOP_MOTORS + String(" - turn off motors and stop accepting commands\n")
+            + CONT_UP + String(" - container arm up\n")
+            + CONT_DOWN + String(" - container arm down\n")
+            + CONT_STOP + String(" - container arm off\n")
+            + DRILL_UP + String(" - drill arm up\n")
+            + DRILL_DOWN + String(" - drill arm down\n")
+            + DRILL_STOP + String(" - stop drill translation")
+            + DRILL_CW + String(" - spin drill clockwise\n")
+            + DRILL_CCW + String(" - spin drill counter-clockwise\n")
+            + DRILL_OFF + String(" - stop spinning drill\n")
+            + DRILL_STOP + String(" - drill stop translating\n")
+            + CONT_OPEN + String(" - open container\n")
+            + CONT_CLOSE + String(" - close container\n\n"));
 }
 
 void loop() {    
@@ -364,59 +408,78 @@ void loop() {
     
     if(accept_input){
       switch (rx_byte){
-        // Raise arm if 'w' is pressed
-        case 'w':
-          arm_up();
+        // Raise container arm
+        case CONT_UP:
+          cont_up();
           break;
   
-        // :Lower arm if 's' is pressed
-        case 's':
-          arm_down();    
+        // :Lower container arm
+        case CONT_DOWN:
+          cont_down();    
           break;
   
-        // Freeze arm if 'e' is pressed
-        case 'e':
+        // Stop container arm translation
+        case CONT_STOP:
           stepper_1 = false;
           break;
   
-        // Raise drill if 'r' is pressed
-        case 'r':
+        // Raise drill arm
+        case DRILL_UP:
           drill_up();
           break;
         
-        // Lower drill if 'f' is pressed
-        case 'f':
+        // Lower drill arm
+        case DRILL_DOWN:
           drill_down();
           break;
   
-        // Freeze drill (translation) if 't' is pressed
-        case 't':
+        // Stop drill arm translation
+        case DRILL_STOP:
           stepper_2 = false;
           break;
   
-        // Toggle drill if 'd' is pressed
-        case 'd':
-          drill_on = !drill_on;
-  
-          if(drill_on)
-            drill_spin();
-          else
-            drill_off();
+        // Spin clockwise
+        case DRILL_CW:
+          drill_cw();
           break;
-  
-        // Open container if 'o' is pressed
-        case 'o':
-          container_open();
+
+        // Spin counter-clockwise
+        case DRILL_CCW:
+          drill_ccw();
           break;
-  
-        // Open container if 'c' is pressed
-        case 'c':
+
+        // Stop drilling
+        case DRILL_OFF:
+          drill_off();
+          break;
+
+        // Close container
+        case CONT_CLOSE:
           container_close();
           break;
+        
+        // Open container
+        case CONT_OPEN:
+          container_open();
+          break;
           
-        // Stop everything if 'q' is pressed
-        case 'q':
-          stop();
+        // Moisture probe up
+        case MOIST_UP:
+          break;
+          
+        // Moisture probe down
+        case MOIST_DOWN:
+          break;
+          
+        // Stop motors
+        case STOP_MOTORS:
+          stop_motors();
+          break;
+
+        // Stop everything
+        case KILL_SWITCH:
+          stop_motors();
+          exit(EXIT_FAILURE);
           break;
       }
       log_info("\n\n");
@@ -424,8 +487,8 @@ void loop() {
     else if(rx_byte == 'a'){
       Serial.write(rx_byte);
     }
-    else if(rx_byte == 'p'){
-      accept_input = true;
+    else if(rx_byte == START){
+      start();
       log_info("\n\n");
     }
     else{
@@ -461,9 +524,9 @@ void loop() {
   // NB: needed to separate cases of running both simultaneously. 
   // The extra delay of running another motor slows both down and makes a loud noise.
   if(stepper_1 && stepper_2)
-    run_steppers(S1_EN_PIN, S1_STEP_PIN, S2_EN_PIN, S2_STEP_PIN);
+    run_steppers(S1_STEP_PIN, S2_STEP_PIN);
   else if(stepper_1)
-    run_stepper(S1_EN_PIN, S1_STEP_PIN);
+    run_stepper(S1_STEP_PIN);
   else if(stepper_2)
-    run_stepper(S2_EN_PIN, S2_STEP_PIN);  
+    run_stepper(S2_STEP_PIN);  
 }
