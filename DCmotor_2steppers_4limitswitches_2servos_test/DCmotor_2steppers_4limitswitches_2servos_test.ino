@@ -52,7 +52,7 @@ void setup() {
   container_servo.attach(CONTAINER_SERVO_PIN);
   container_servo.write(0);   // Rotate to 0° otherwise it will open automatically
   probe_servo.attach(PROBE_SERVO_PIN);
-  probe_servo.write(0);   // Rotate to 0° otherwise it will open automatically
+  probe_servo.write(120);   // Rotate to 0° otherwise it will open automatically
 
   // Stepper
   digitalWrite(S1_EN_PIN, HIGH);  // Disable stepper driver so it doesn't turn motor
@@ -136,6 +136,12 @@ void loop() {
 
     change_command = false;
   }
+
+  else if (change_command && rx_byte == 'm') {
+    //Khoi put in later
+    Serial.println(analogRead(0));
+    change_command = false;
+  }
   
 
 
@@ -202,18 +208,24 @@ void loop() {
     digitalWrite(S2_EN_PIN, HIGH);  // Disable stepper driver
   }
  
-  // Servo close
+  // Container close
   if (rx_byte == 'c') {
     container_servo.write(0);   // Rotate to 0°
     Serial.println("Closing");
-    probe_servo.write(0);   // Rotate to 0°
+    // probe_servo.write(0);   // Rotate to 0°
   }
 
-  // Servo open
+  // Container open
   if (rx_byte == 'o') {
     container_servo.write(120);   // Rotate to ~180°
     Serial.println("Opening");
-    probe_servo.write(120);   // Rotate to 0°
+    //probe_servo.write(120);   // Rotate to 0°
+  }
+
+  if (change_command && rx_byte == 'p') {
+    int current = probe_servo.read();
+    probe_servo.write((current > 90) ? 0 : 120);   // Rotate to 0°
+    change_command = false;
   }
 
   
