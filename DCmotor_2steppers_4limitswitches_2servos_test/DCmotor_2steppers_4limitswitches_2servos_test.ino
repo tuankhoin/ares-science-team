@@ -52,7 +52,7 @@ void setup() {
   container_servo.attach(CONTAINER_SERVO_PIN);
   container_servo.write(0);   // Rotate to 0° otherwise it will open automatically
   probe_servo.attach(PROBE_SERVO_PIN);
-  probe_servo.write(120);   // Rotate to 0° otherwise it will open automatically
+  probe_servo.write(72);   // Rotate to 0° otherwise it will open automatically
 
   // Stepper
   digitalWrite(S1_EN_PIN, HIGH);  // Disable stepper driver so it doesn't turn motor
@@ -224,7 +224,12 @@ void loop() {
 
   if (change_command && rx_byte == 'p') {
     int current = probe_servo.read();
-    probe_servo.write((current > 60) ? 0 : 120);   // Rotate to 0°
+    probe_servo.write((current > 36) ? 0 : 72);   // Rotate to 0°
+    change_command = false;
+  }
+
+  if (change_command && isdigit(rx_byte)) {
+    probe_servo.write(((int)rx_byte-'0')*5+120);
     change_command = false;
   }
 
