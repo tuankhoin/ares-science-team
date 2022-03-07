@@ -15,14 +15,23 @@ if not sci.ready():
 print("Science payload connection established.")
 
 
-def arm_up(data):
-    sci.arm_up()
+def distance_calibration(data):
+    sci.distance_calibration()
 
-def arm_down(data):
-    sci.arm_down()
 
-def arm_off(data):
-    sci.arm_off()
+def start(data):
+    sci.start()
+
+
+def container_up(data):
+    sci.container_up()
+
+def container_down(data):
+    sci.container_down()
+
+def container_stop(data):
+    sci.container_stop()
+
 
 def drill_up(data):
     sci.drill_up()
@@ -30,11 +39,19 @@ def drill_up(data):
 def drill_down(data):
     sci.drill_down()
 
+def drill_stop(data):
+    sci.drill_stop()
+
+
+def drill_cw(data):
+    sci.drill_cw()
+
+def drill_ccw(data):
+    sci.drill_ccw()
+
 def drill_off(data):
     sci.drill_off()
 
-def drill_toggle(data):
-    sci.drill_toggle()
 
 def container_open(data):
     sci.container_open()
@@ -42,39 +59,50 @@ def container_open(data):
 def container_close(data):
     sci.container_close()
 
-def start(data):
-    sci.start()
 
-def stop(data):
-    sci.stop()
+def probe_up(data):
+    sci.container_open()
 
-def dist_calib(data):
-    sci.dist_calib()
+def probe_down(data):
+    sci.container_close()
 
 
+
+
+def stop_motors(data):
+    sci.stop_motors()
+
+def kill(data):
+    sci.kill()
 
 
 def teleop_science():
     rospy.init_node('teleop_science_sub', anonymous=True)
 
-
-    rospy.Subscriber("teleop_science/arm_up", Empty, arm_up)
-    rospy.Subscriber("teleop_science/arm_down", Empty, arm_down)
-    rospy.Subscriber("teleop_science/arm_off", Empty, arm_off)
-    
-    rospy.Subscriber("teleop_science/drill_up", Empty, drill_up)
-    rospy.Subscriber("teleop_science/drill_down", Empty, drill_down)
-    rospy.Subscriber("teleop_science/drill_off", Empty, drill_off)
-
-    rospy.Subscriber("teleop_science/drill_toggle", Empty, drill_toggle)
-
-    rospy.Subscriber("teleop_science/container_open", Empty, container_open)
-    rospy.Subscriber("teleop_science/container_close", Empty, container_close)
+    rospy.Subscriber("teleop_science/distance_sensor_calibration", Empty, distance_calibration)
 
     rospy.Subscriber("teleop_science/start", Empty, start)
-    rospy.Subscriber("teleop_science/stop", Empty, stop)
 
-    rospy.Subscriber("teleop_science/distance_sensor_calibration", Empty, dist_calib)
+    rospy.Subscriber("teleop_science/container_up", Empty,  container_up)
+    rospy.Subscriber("teleop_science/container_down", Empty,  container_down)
+    rospy.Subscriber("teleop_science/container_stop", Empty,  container_stop)
+
+    rospy.Subscriber("teleop_science/drill_up", Empty,  drill_up)
+    rospy.Subscriber("teleop_science/drill_down", Empty,  drill_down)
+    rospy.Subscriber("teleop_science/drill_stop", Empty,  drill_stop)
+
+    rospy.Subscriber("teleop_science/drill_cw", Empty,  drill_cw)
+    rospy.Subscriber("teleop_science/drill_ccw", Empty,  drill_ccw)
+    rospy.Subscriber("teleop_science/drill_off", Empty,  drill_off)
+
+    rospy.Subscriber("teleop_science/container_open", Empty,  container_open)
+    rospy.Subscriber("teleop_science/container_close", Empty,  container_close)
+
+    rospy.Subscriber("teleop_science/probe_up", Empty,  probe_up)
+    rospy.Subscriber("teleop_science/probe_down", Empty,  probe_down)
+
+    rospy.Subscriber("teleop_science/stop_motors", Empty, stop_motors)
+    rospy.Subscriber("teleop_science/kill", Empty,  kill)
 
     print("ROS ready.")
     rospy.spin()

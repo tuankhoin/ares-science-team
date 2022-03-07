@@ -26,65 +26,109 @@ class Science:
         response = None
         
         while not response and retry_count < max_retry:
-            self.send('a')
+            self.send('p')
             response = self.recv(1)
             retry_count += 1
-        return response == 'a'
+        return response == 'p'
+        
+    # Send a byte to register that the switch has been flicked
+    def distance_calibration(self):
+        print("calibrating")
+        # Can be any byte (doesn't interfere with other commands regardless)
+        # Chose 'l' at random
+        self.send('l')
 
-    # move arm up
-    def arm_up(self):
-        print("arm up")
+
+    # start accepting inputs
+    def start(self):
+        print("start")
+        self.send('z')
+
+
+    # move container arm up
+    def container_up(self):
+        print("container arm up")
+        self.send('q')
+
+    # move container arm down
+    def container_down(self):
+        print("container arm down")
+        self.send('a')
+
+    # stop container arm
+    def container_stop(self):
+        print("stop container arm")
         self.send('w')
-
-    # move arm down
-    def arm_down(self):
-        print("arm down")
-        self.send('s')
-
-    def arm_off(self):
-        print("arm off")
-        self.send('e')
     
-    # move drill up
+
+    # move drill arm up
     def drill_up(self):
-        print("drill up")
+        print("drill arm up")
+        self.send('e')
+
+    # move drill arm down
+    def drill_down(self):
+        print("drill arm down")
+        self.send('d')
+
+    # stop drill arm (translating)
+    def drill_stop(self):
+        print("stop drill arm")
         self.send('r')
 
-    # move drill down
-    def drill_down(self):
-        print("drill down")
-        self.send('f')
 
-    # stop drill translating
-    def drill_off(self):
-        print("drill off (translation)")
+    # start drilling clockwise
+    def drill_cw(self):
+        print("drill clockwise")
         self.send('t')
 
-    # start drilling
-    def drill_toggle(self):
-        print("toggle drill")
-        self.send('d')
+    # start drilling counter-clockwise
+    def drill_ccw(self):
+        print("drill counter-clockwise")
+        self.send('g')
+
+    # stop drilling
+    def drill_off(self):
+        print("drill off")
+        self.send('y')
+
 
     # open container
     def container_open(self):
         print("open container")
-        self.send('o')
+        self.send('u')
 
     # close container
     def container_close(self):
         print("close container")
+        self.send('j')
+
+
+    # angle moisture probe up
+    def probe_up(self):
+        print("moisture probe up")
+        self.send('i')
+
+    # angle moisture probe down
+    def probe_down(self):
+        print("moisture probe down")
+        self.send('k')
+
+
+    # stop all motors
+    def stop_motors(self):
+        print("stop motors")
+        self.send('x')
+    
+    # kill switch
+    def kill(self):
+        print("kill")
         self.send('c')
 
-    # start everything
-    def start(self):
-        print("start")
-        self.send('p')
+        # echo ensures motors are stopped before disconnecting from Arduino
+        if(self.recv(1) == 'c'):
+            self.disconnect()
+        else:
+            print("kill command not echoed!")
 
-    # stop everything
-    def stop(self):
-        print("stop")
-        self.send('q')
-
-    def dist_calib(self):
-        print("calibrating")
-        self.send('l')
+    

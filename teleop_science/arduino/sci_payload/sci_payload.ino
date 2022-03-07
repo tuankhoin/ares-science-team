@@ -67,12 +67,14 @@
 #define CONT_CLOSE 'u'
 #define CONT_OPEN 'j'
 
-#define MOIST_UP 'i'
-#define MOIST_DOWN 'k'
+#define PROBE_UP 'i'
+#define PROBE_DOWN 'k'
 
 #define START 'z'
 #define STOP_MOTORS 'x'
-#define KILL_SWITCH 'c'
+#define KILL 'c'
+
+#define READY 'p'
 
 
 
@@ -99,7 +101,7 @@ Servo probe_servo;
 
 
 // Serial monitor input character
-char rx_byte = 'p';
+char rx_byte;
 
 // Some toggles
 bool stepper_1 = false;
@@ -285,11 +287,6 @@ void setup_distance_sensors(){
     return;
   }
 
-  if(Serial.read() != 'l'){
-    log_info("Distance sensor setup failed: wrong command received\n\n");
-    return;
-  }
-
 
    if(S2_distance_sensor.begin() == false){
       log_info("Sensor 2 failed to begin. Please check wiring.\n");
@@ -464,11 +461,11 @@ void loop() {
           break;
           
         // Moisture probe up
-        case MOIST_UP:
+        case PROBE_UP:
           break;
           
         // Moisture probe down
-        case MOIST_DOWN:
+        case PROBE_DOWN:
           break;
           
         // Stop motors
@@ -477,15 +474,16 @@ void loop() {
           break;
 
         // Stop everything
-        case KILL_SWITCH:
+        case KILL:
           stop_motors();
+          Serial.write(KILL);
           exit(EXIT_FAILURE);
           break;
       }
       log_info("\n\n");
     }
-    else if(rx_byte == 'a'){
-      Serial.write(rx_byte);
+    else if(rx_byte == READY){
+      Serial.write(READY);
     }
     else if(rx_byte == START){
       start();
