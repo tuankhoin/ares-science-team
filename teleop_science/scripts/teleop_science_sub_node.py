@@ -61,10 +61,10 @@ def container_close(data):
 
 
 def probe_up(data):
-    sci.container_open()
+    sci.probe_up()
 
 def probe_down(data):
-    sci.container_close()
+    sci.probe_down()
 
 
 
