@@ -224,7 +224,7 @@ void loop() {
 
   if (change_command && rx_byte == 'p') {
     int current = probe_servo.read();
-    probe_servo.write((current > 90) ? 0 : 120);   // Rotate to 0°
+    probe_servo.write((current > 60) ? 0 : 120);   // Rotate to 0°
     change_command = false;
   }
 
