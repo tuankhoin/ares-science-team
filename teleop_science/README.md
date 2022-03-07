@@ -1,4 +1,4 @@
-**Note: this is intended as a live document and may contain errors**
+**General Status** - (to do)
 
 # Introduction
 
