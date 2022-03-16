@@ -26,6 +26,11 @@ void setup(void)
 
   S1_distance_sensor.begin();
   S2_distance_sensor.begin();
+
+  Serial.print("S1's address: ");
+  Serial.println(S1_distance_sensor.getI2CAddress());
+  Serial.print("S2's address: ");
+  Serial.println(S2_distance_sensor.getI2CAddress());
   
   Serial.println("Please remove S2's SDA & SCL pins. Press any key and hit enter to continue.");
   while (Serial.available() == 0);

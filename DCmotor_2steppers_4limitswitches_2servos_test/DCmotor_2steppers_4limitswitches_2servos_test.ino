@@ -1,4 +1,4 @@
-
+ 
 
 // Servo
 #include <Servo.h>
@@ -207,7 +207,7 @@ void loop() {
     // Turn it off
     digitalWrite(S2_EN_PIN, HIGH);  // Disable stepper driver
   }
- 
+
   // Container close
   if (rx_byte == 'c') {
     container_servo.write(0);   // Rotate to 0°
@@ -232,6 +232,8 @@ void loop() {
     probe_servo.write(((int)rx_byte-'0')*5+120);
     change_command = false;
   }
+
+  Serial.println(analogRead(A0));
 
   
 }
