@@ -212,14 +212,14 @@ void loop() {
   if (rx_byte == 'c') {
     container_servo.write(0);   // Rotate to 0°
     Serial.println("Closing");
-    // probe_servo.write(0);   // Rotate to 0°
+    probe_servo.write(72);   // Rotate to 0°
   }
 
   // Container open
   if (rx_byte == 'o') {
     container_servo.write(120);   // Rotate to ~180°
     Serial.println("Opening");
-    //probe_servo.write(120);   // Rotate to 0°
+    probe_servo.write(0);   // Rotate to 0°
   }
 
   if (change_command && rx_byte == 'p') {
